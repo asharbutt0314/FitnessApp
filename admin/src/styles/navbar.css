@@ -1,0 +1,168 @@
+.admin-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 2px solid rgba(255, 107, 107, 0.3);
+  padding: 1rem 0;
+}
+
+.admin-nav-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  text-decoration: none;
+  color: white;
+  font-weight: 800;
+  font-size: 1.6rem;
+  transition: all 0.3s ease;
+}
+
+.admin-brand:hover {
+  color: #e91e63;
+  transform: scale(1.05);
+}
+
+.admin-brand-logo {
+  width: 55px;
+  height: 55px;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  color: white;
+  box-shadow: 0 4px 14px 0 rgba(255, 107, 107, 0.39);
+  animation: adminGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes adminGlow {
+  from { box-shadow: 0 4px 14px 0 rgba(255, 107, 107, 0.39); }
+  to { box-shadow: 0 8px 25px 0 rgba(255, 107, 107, 0.5); }
+}
+
+.admin-brand-name {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 900;
+}
+
+.admin-nav-items {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-radius: 12px;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(233, 30, 99, 0.2) 0%, rgba(156, 39, 176, 0.2) 100%);
+  transition: left 0.3s ease;
+}
+
+.admin-nav-item:hover::before {
+  left: 0;
+}
+
+.admin-nav-item:hover {
+  color: #ff6b6b;
+  transform: translateY(-5px);
+  background: rgba(255, 107, 107, 0.1);
+  box-shadow: 0 8px 25px rgba(255, 107, 107, 0.2);
+}
+
+.admin-nav-item.active {
+  color: white;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+  box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+  transform: translateY(-3px);
+}
+
+.admin-nav-item.active::before {
+  display: none;
+}
+
+.admin-nav-item i {
+  font-size: 1rem;
+  z-index: 1;
+}
+
+.admin-nav-item span {
+  z-index: 1;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 1024px) {
+  .admin-nav-items {
+    gap: 0.25rem;
+  }
+  
+  .admin-nav-item {
+    padding: 0.8rem 1.2rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-nav-wrapper {
+    padding: 0 1rem;
+  }
+  
+  .admin-nav-items {
+    gap: 0.25rem;
+  }
+  
+  .admin-nav-item {
+    padding: 0.8rem 1rem;
+    font-size: 0.85rem;
+  }
+  
+  .admin-nav-item span {
+    display: none;
+  }
+  
+  .admin-brand-name {
+    font-size: 1.3rem;
+  }
+  
+  .admin-brand-logo {
+    width: 50px;
+    height: 50px;
+  }
+}

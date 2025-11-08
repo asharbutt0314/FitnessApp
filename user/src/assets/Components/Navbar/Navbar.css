@@ -1,76 +1,153 @@
-/* Remove conflicting nav-link styles to prevent icon positioning issues */
-.navbar .nav-link {
-  display: inline-flex !important;
-  align-items: center !important;
-  transition: all 0.3s ease;
+.fitness-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 2px solid rgba(99, 102, 241, 0.3);
+  padding: 1rem 0;
 }
 
-.navbar .nav-link i {
-  display: inline-block !important;
-  vertical-align: middle !important;
-}
-  /* Fade-in animation for nav items */
-.nav-fade {
-  transition: all 0.3s ease-in-out;
-  opacity: 1;
-  transform: translateY(0);
+.nav-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.nav-fade-hidden {
-  opacity: 0;
-  transform: translateY(-10px);
-  pointer-events: none;
-}
-
-/* Login button */
-.login-button {
-  transition: all 0.3s ease;
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  padding: 6px 18px;
-  border-radius: 999px;
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
   text-decoration: none;
-}
-
-.login-button:hover {
-  background-color: #bb2d3b;
-  box-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
-}
-
-/* Logout button */
-.logout-button {
-  transition: all 0.3s ease;
-  color: #dc3545;
-  border: 2px solid #dc3545;
-  border-radius: 999px;
-  padding: 6px 18px;
-  background: white;
-}
-
-.logout-button:hover {
-  background-color: #dc3545;
   color: white;
-  box-shadow: 0 0 10px rgba(220, 53, 69, 0.3);
+  font-weight: 800;
+  font-size: 1.5rem;
+  transition: all 0.3s ease;
 }
 
-/* Admin navbar animations */
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.brand:hover {
+  color: #6366f1;
+  transform: scale(1.02);
 }
 
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
+.brand-logo {
+  width: 55px;
+  height: 55px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  color: white;
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from { box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4); }
+  to { box-shadow: 0 8px 35px rgba(99, 102, 241, 0.7); }
+}
+
+.brand-name {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+}
+
+.nav-items {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 1rem 1.5rem;
+  border-radius: 18px;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+  transition: left 0.3s ease;
+}
+
+.nav-item:hover::before {
+  left: 0;
+}
+
+.nav-item:hover {
+  color: #6366f1;
+  transform: translateY(-5px);
+  background: rgba(99, 102, 241, 0.1);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.2);
+}
+
+.nav-item.active {
+  color: white;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+  transform: translateY(-3px);
+}
+
+.nav-item.active::before {
+  display: none;
+}
+
+.nav-item i {
+  font-size: 1.4rem;
+  z-index: 1;
+}
+
+.nav-item span {
+  font-size: 0.8rem;
+  z-index: 1;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 768px) {
+  .nav-wrapper {
+    padding: 0 1rem;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  
+  .nav-items {
+    gap: 0.25rem;
+  }
+  
+  .nav-item {
+    padding: 0.75rem 1rem;
+  }
+  
+  .nav-item span {
+    display: none;
+  }
+  
+  .brand-name {
+    font-size: 1.25rem;
   }
 }

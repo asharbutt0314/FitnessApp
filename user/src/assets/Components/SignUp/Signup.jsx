@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../Toast/ToastProvider';
 
@@ -8,19 +7,20 @@ const Signup = () => {
     username: '',
     email: '',
     password: '',
+    gender: '',
+    age: '',
+    height: '',
+    weight: '',
+    fitnessGoal: '',
+    activityLevel: ''
   });
-  const [showPassword, setShowPassword] = useState(false);
   const [passwordError, setPasswordError] = useState('');
   const [message, setMessage] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const toast = useToast();
 
-  useEffect(() => {
-    const user = localStorage.getItem("user");
-    if (user) {
-      navigate("/");
-    }
-  }, [navigate]);
+
 
   const handleChange = (e) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -29,33 +29,53 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setPasswordError('');
+    
     // Strong password validation
     if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/.test(formData.password)) {
       setPasswordError('Password must be at least 8 characters, include uppercase, lowercase, number, and special character.');
       return;
     }
+    
     try {
-      const res = await axios.post('http://localhost:5001/auth/signup', {
+      const userData = {
         username: formData.username,
         email: formData.email,
         password: formData.password,
+        gender: formData.gender,
+        age: parseInt(formData.age),
+        height: parseInt(formData.height),
+        weight: parseFloat(formData.weight),
+        fitnessGoal: formData.fitnessGoal,
+        activityLevel: formData.activityLevel
+      };
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
       });
 
-      if (res.data.success) {
-        setMessage('Signup successful. Redirecting to OTP verification...');
-        toast.addToast('Signup successful. Redirecting to OTP verification...', 'success');
-        setTimeout(() => {
-          setMessage('');
-          navigate('/OtpVerify', { state: { email: formData.email } });
-        }, 1500);
+      const data = await response.json();
+
+      if (data.success) {
+        localStorage.setItem('userEmail', formData.email);
+        toast.addToast(data.message, 'success');
+        navigate('/otp-verify');
       } else {
-        setMessage(res.data.message || 'Signup failed');
-        toast.addToast(res.data.message || 'Signup failed', 'error');
+        if (data.message.includes('Email already exists')) {
+          setMessage('Email already registered. Redirecting to login...');
+          toast.addToast('Email already registered. Redirecting to login...', 'error');
+          setTimeout(() => navigate('/login'), 3000);
+        } else {
+          setMessage(data.message);
+          toast.addToast(data.message, 'error');
+        }
       }
-    } catch (err) {
-      console.error(err);
-      setMessage('Server error during signup');
-      toast.addToast('Server error during signup', 'error');
+    } catch (error) {
+      setMessage('Registration failed');
+      toast.addToast('Registration failed', 'error');
     }
   };
 
@@ -68,131 +88,272 @@ const Signup = () => {
   }, [message]);
 
   return (
-    <div className="container my-5">
-      <div className="row justify-content-center">
-        <div className="col-lg-5 col-md-7">
-          <div className="card shadow-lg border-0" style={{ borderRadius: '20px', overflow: 'hidden' }}>
-            <div className="card-header text-white text-center py-4" style={{ background: 'linear-gradient(135deg, #FF5722 0%, #FF9800 100%)' }}>
-              <h2 className="mb-0">
-                <i className="bi bi-person-plus" style={{ fontSize: '1.2em', marginRight: '10px' }}></i>
-                Join FoodExpress!
-              </h2>
-              <p className="mb-0 mt-2" style={{ opacity: '0.9' }}>Create account to start ordering</p>
-            </div>
-            
-            <div className="card-body p-4" style={{ background: 'linear-gradient(145deg, #ffffff, #f8f9fa)' }}>
-              <form onSubmit={handleSubmit}>
-                <div className="mb-4">
-                  <label className="form-label fw-bold" style={{ color: '#FF5722' }}><i className="bi bi-person"></i> Username</label>
-                  <input
-                    type="text"
-                    name="username"
-                    className="form-control"
-                    value={formData.username}
-                    onChange={handleChange}
-                    required
-                    style={{ 
-                      borderRadius: '15px', 
-                      border: '2px solid #FFE0B2', 
-                      padding: '12px 20px',
-                      fontSize: '16px'
-                    }}
-                    placeholder="Enter your username"
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <label className="form-label fw-bold" style={{ color: '#FF5722' }}><i className="bi bi-envelope"></i> Email Address</label>
-                  <input
-                    type="email"
-                    name="email"
-                    className="form-control"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    style={{ 
-                      borderRadius: '15px', 
-                      border: '2px solid #FFE0B2', 
-                      padding: '12px 20px',
-                      fontSize: '16px'
-                    }}
-                    placeholder="Enter your email"
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <label className="form-label fw-bold" style={{ color: '#FF5722' }}><i className="bi bi-lock"></i> Password</label>
-                  <div className="input-group">
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      name="password"
-                      className="form-control"
-                      value={formData.password}
-                      onChange={handleChange}
-                      required
-                      style={{
-                        borderRadius: '15px 0 0 15px',
-                        border: '2px solid #FFE0B2',
-                        borderRight: 'none',
-                        padding: '12px 20px',
-                        fontSize: '16px',
-                        transition: 'all 0.3s ease',
-                        height: '48px',
-                        boxShadow: '0 2px 8px rgba(255,87,34,0.07)',
-                        boxSizing: 'border-box',
-                        verticalAlign: 'middle'
-                      }}
-                      placeholder="Create a strong password"
-                      onFocus={e => e.target.style.boxShadow = '0 0 0 0.2rem rgba(255, 152, 0, 0.25)'}
-                      onBlur={e => e.target.style.boxShadow = '0 2px 8px rgba(255,87,34,0.07)'}
-                    />
-                    <button
-                      type="button"
-                      className="btn"
-                      onClick={() => setShowPassword(!showPassword)}
-                      style={{
-                        background: 'linear-gradient(45deg, #FF5722, #FF9800)',
-                        border: '2px solid #FFE0B2',
-                        borderLeft: 'none',
-                        borderRadius: '0 15px 15px 0',
-                        color: 'white',
-                        padding: '0 18px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        height: '48px',
-                        boxShadow: '0 2px 8px rgba(255,87,34,0.07)',
-                        boxSizing: 'border-box',
-                        verticalAlign: 'middle',
-                        margin: 0
-                      }}
-                    >
-                      <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
-                    </button>
-                  </div>
-                  {passwordError && (
-                    <div className="text-danger mt-2" style={{ fontSize: '0.95em' }}>{passwordError}</div>
-                  )}
-                </div>
-
-                <button 
-                  type="submit" 
-                  className="cool-btn cool-btn-success cool-btn-lg w-100 mb-3"
-                >
-                  <i className="bi bi-person-plus me-2"></i>Create Account
-                </button>
-
-                {message && (
-                  <div className="alert alert-success text-center" style={{ borderRadius: '15px', border: '2px solid #4CAF50' }}>
-                    {message}
-                  </div>
-                )}
-                
-                <div className="text-center mt-3">
-                  <p className="text-muted">Already have an account? <a href="/login" style={{ color: '#FF5722', textDecoration: 'none', fontWeight: 'bold' }}>Login here</a></p>
-                </div>
-              </form>
-            </div>
+    <div style={{
+      minHeight: '100vh',
+      background: 'rgba(15, 23, 42, 0.95)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}>
+      <div style={{
+        background: 'white',
+        borderRadius: '20px',
+        padding: '3rem',
+        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+        width: '100%',
+        maxWidth: '400px'
+      }}>
+        <div className="text-center mb-4">
+          <div style={{
+            width: '80px',
+            height: '80px',
+            background: 'rgba(15, 23, 42, 0.95)',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 1rem',
+            boxShadow: '0 8px 25px rgba(15, 23, 42, 0.3)'
+          }}>
+            <i className="bi bi-person-plus text-white" style={{ fontSize: '2rem' }}></i>
           </div>
+          <h2 style={{ color: '#6b7280', fontWeight: 'bold' }}>Join FitZone!</h2>
+          <p style={{ color: '#9ca3af' }}>Create account to start your fitness journey</p>
+        </div>
+        
+        <form onSubmit={handleSubmit}>
+          <div className="mb-3">
+            <label className="form-label" style={{ color: 'rgba(15, 23, 42, 0.95)', fontWeight: '600' }}>Username</label>
+            <input
+              type="text"
+              name="username"
+              className="form-control"
+              value={formData.username}
+              onChange={handleChange}
+              required
+              style={{
+                borderRadius: '12px',
+                border: '2px solid rgba(15, 23, 42, 0.2)',
+                padding: '12px 16px',
+                fontSize: '16px'
+              }}
+            />
+          </div>
+          
+          <div className="mb-3">
+            <label className="form-label" style={{ color: 'rgba(15, 23, 42, 0.95)', fontWeight: '600' }}>Email</label>
+            <input
+              type="email"
+              name="email"
+              className="form-control"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              style={{
+                borderRadius: '12px',
+                border: '2px solid rgba(15, 23, 42, 0.2)',
+                padding: '12px 16px',
+                fontSize: '16px'
+              }}
+            />
+          </div>
+          
+          <div className="mb-3">
+            <label className="form-label" style={{ color: 'rgba(15, 23, 42, 0.95)', fontWeight: '600' }}>Gender</label>
+            <select
+              name="gender"
+              className="form-control"
+              value={formData.gender}
+              onChange={handleChange}
+              required
+              style={{
+                borderRadius: '12px',
+                border: '2px solid rgba(15, 23, 42, 0.2)',
+                padding: '12px 16px',
+                fontSize: '16px'
+              }}
+            >
+              <option value="">Select Gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          
+          <div className="mb-3">
+            <label className="form-label" style={{ color: 'rgba(15, 23, 42, 0.95)', fontWeight: '600' }}>Age</label>
+            <input
+              type="number"
+              name="age"
+              className="form-control"
+              value={formData.age}
+              onChange={handleChange}
+              required
+              min="13"
+              max="100"
+              style={{
+                borderRadius: '12px',
+                border: '2px solid rgba(15, 23, 42, 0.2)',
+                padding: '12px 16px',
+                fontSize: '16px'
+              }}
+            />
+          </div>
+          
+          <div className="mb-3">
+            <label className="form-label" style={{ color: 'rgba(15, 23, 42, 0.95)', fontWeight: '600' }}>Height (cm)</label>
+            <input
+              type="number"
+              name="height"
+              className="form-control"
+              value={formData.height}
+              onChange={handleChange}
+              required
+              min="100"
+              max="250"
+              style={{
+                borderRadius: '12px',
+                border: '2px solid rgba(15, 23, 42, 0.2)',
+                padding: '12px 16px',
+                fontSize: '16px'
+              }}
+            />
+          </div>
+          
+          <div className="mb-3">
+            <label className="form-label" style={{ color: 'rgba(15, 23, 42, 0.95)', fontWeight: '600' }}>Weight (kg)</label>
+            <input
+              type="number"
+              name="weight"
+              className="form-control"
+              value={formData.weight}
+              onChange={handleChange}
+              required
+              min="30"
+              max="300"
+              step="0.1"
+              style={{
+                borderRadius: '12px',
+                border: '2px solid rgba(15, 23, 42, 0.2)',
+                padding: '12px 16px',
+                fontSize: '16px'
+              }}
+            />
+          </div>
+          
+          <div className="mb-3">
+            <label className="form-label" style={{ color: 'rgba(15, 23, 42, 0.95)', fontWeight: '600' }}>Fitness Goal</label>
+            <select
+              name="fitnessGoal"
+              className="form-control"
+              value={formData.fitnessGoal}
+              onChange={handleChange}
+              required
+              style={{
+                borderRadius: '12px',
+                border: '2px solid rgba(15, 23, 42, 0.2)',
+                padding: '12px 16px',
+                fontSize: '16px'
+              }}
+            >
+              <option value="">Select Fitness Goal</option>
+              <option value="weight_loss">Weight Loss</option>
+              <option value="muscle_gain">Muscle Gain</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="endurance">Endurance</option>
+            </select>
+          </div>
+          
+          <div className="mb-3">
+            <label className="form-label" style={{ color: 'rgba(15, 23, 42, 0.95)', fontWeight: '600' }}>Activity Level</label>
+            <select
+              name="activityLevel"
+              className="form-control"
+              value={formData.activityLevel}
+              onChange={handleChange}
+              required
+              style={{
+                borderRadius: '12px',
+                border: '2px solid rgba(15, 23, 42, 0.2)',
+                padding: '12px 16px',
+                fontSize: '16px'
+              }}
+            >
+              <option value="">Select Activity Level</option>
+              <option value="sedentary">Sedentary (Little to no exercise)</option>
+              <option value="lightly_active">Lightly Active (1-3 days/week)</option>
+              <option value="moderately_active">Moderately Active (3-5 days/week)</option>
+              <option value="very_active">Very Active (6-7 days/week)</option>
+              <option value="extremely_active">Extremely Active (2x/day or intense)</option>
+            </select>
+          </div>
+          
+          <div className="mb-4">
+            <label className="form-label" style={{ color: 'rgba(15, 23, 42, 0.95)', fontWeight: '600' }}>Password</label>
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                className="form-control"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                style={{
+                  borderRadius: '12px',
+                  border: '2px solid rgba(15, 23, 42, 0.2)',
+                  padding: '12px 45px 12px 16px',
+                  fontSize: '16px'
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  color: 'rgba(15, 23, 42, 0.6)',
+                  cursor: 'pointer'
+                }}
+              >
+                <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+              </button>
+            </div>
+            {passwordError && (
+              <div className="text-danger mt-2" style={{ fontSize: '0.95em' }}>{passwordError}</div>
+            )}
+          </div>
+          
+          <button
+            type="submit"
+            className="btn w-100"
+            style={{
+              background: 'rgba(15, 23, 42, 0.95)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '12px',
+              padding: '12px',
+              fontSize: '16px',
+              fontWeight: 'bold'
+            }}
+          >
+            Create Account
+          </button>
+        </form>
+        
+        {message && (
+          <div className={`alert text-center mt-3 ${
+            message.includes('Redirecting') ? 'alert-warning' : 'alert-success'
+          }`} style={{ borderRadius: '12px', border: '2px solid rgba(15, 23, 42, 0.2)' }}>
+            {message}
+          </div>
+        )}
+        
+        <div className="text-center mt-3">
+          <p style={{ color: '#9ca3af', margin: '0' }}>Already have an account? <a href="/login" style={{ color: 'rgba(15, 23, 42, 0.95)', textDecoration: 'none', fontWeight: 'bold' }}>Login</a></p>
         </div>
       </div>
     </div>
